@@ -1,26 +1,4 @@
 // scripts/npc-data.js
-console.log('🐲 npc-data.js executing from URL:', document.currentScript && document.currentScript.src);
-
-;(function(){
-  const data = {
-    blaze: { /*…*/ },
-    maya: {
-      displayName: 'Maya',
-      icon: '🌸',
-      avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '💊', name: 'Xanax' }
-    },
-    /* other NPCs… */
-  };
-  console.log('🐲 npc-data.js data object:', data);
-
-  window.NPCData = {
-    get: npcId => data[npcId] || {}
-  };
-})();
-
-
-// scripts/npc-data.js
 ;(function(){
   const data = {
     blaze: {

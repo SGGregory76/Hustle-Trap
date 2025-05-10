@@ -4,38 +4,45 @@
     blaze: {
       displayName: 'Blaze',
       icon: '🔥',
-      avatarUrl: 'https://via.placeholder.com/48',  // replace with your real URL
-      drugOfChoice: { icon: '❄️', name: 'Cocaine' }
+      avatarUrl: 'https://via.placeholder.com/48',
+      drugOfChoice: { icon: '❄️', name: 'Meth' },
+      // Dummy link — replace with actual profile URL
+      profileUrl: 'https://example.com/profiles/blaze.html'
     },
     maya: {
       displayName: 'Maya',
-      icon: '💊',
+      icon: '🥊',
       avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '💊', name: 'Xanax' }
+      drugOfChoice: { icon: '💊', name: 'Oxytocin'},
+      profileUrl: 'https://example.com/profiles/maya.html'
     },
     rico: {
       displayName: 'Rico',
       icon: '💼',
       avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '🌿', name: 'Marijuana'}
+      drugOfChoice: { icon: '🍚', name: 'Cocaine'},
+      profileUrl: 'https://example.com/profiles/rico.html'
     },
     skye: {
       displayName: 'Skye',
       icon: '🎤',
       avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '🌈', name: 'LSD' }
+      drugOfChoice: { icon: '🌈', name: 'LSD' },
+      profileUrl: 'https://example.com/profiles/skye.html'
     },
     jax: {
       displayName: 'Jax',
-      icon: '🥊',
+      icon: '🛞',
       avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '🍄', name: 'Shrooms' }
+      drugOfChoice: { icon: '🍯', name: 'Dabs' },
+      profileUrl: 'https://example.com/profiles/jax.html'
     },
     diesel: {
       displayName: 'Diesel',
-      icon: '⛽️',
+      icon: '🥋',
       avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '🪨', name: 'Crack' }
+      drugOfChoice: { icon: '🪨', name: 'Crack' },
+      profileUrl: 'https://example.com/profiles/diesel.html'
     }
   };
 

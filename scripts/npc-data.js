@@ -7,7 +7,7 @@
       avatarUrl: 'https://via.placeholder.com/48',
       drugOfChoice: { icon: '❄️', name: 'Meth' },
       // Dummy link — replace with actual profile URL
-      profileUrl: 'https://example.com/profiles/blaze.html'
+      profileUrl: 'https://hustle-trap.blogspot.com/2025/05/blaze-prologue-mission-html-body-margin.html?m=1'
     },
     maya: {
       displayName: 'Maya',

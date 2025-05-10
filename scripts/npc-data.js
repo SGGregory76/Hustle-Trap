@@ -14,7 +14,7 @@
       icon: '🥊',
       avatarUrl: 'https://via.placeholder.com/48',
       drugOfChoice: { icon: '💊', name: 'Oxytocin'},
-      profileUrl: 'https://example.com/profiles/maya.html'
+      profileUrl: 'https://hustle-trap.blogspot.com/2025/05/npc-maya.html?m=1'
     },
     rico: {
       displayName: 'Rico',

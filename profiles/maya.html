@@ -4,14 +4,12 @@
   <meta charset="UTF-8">
   <title>🌸 Maya – Profile – Hustle Trap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Load shared CSS from your GitHub repo via jsDelivr -->
+  <!-- Shared CSS via jsDelivr -->
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/styles/profile.css"
   >
 </head>
-
-
 <body>
   <div class="content">
     <!-- Header -->
@@ -31,10 +29,22 @@
     <section class="section">
       <h3>🎯 Your Stats</h3>
       <div class="stats-card">
-        <div class="stat"><div class="stat-title">⭐ XP</div><div class="stat-value" id="stat-xp">0</div></div>
-        <div class="stat"><div class="stat-title">🏆 REP</div><div class="stat-value" id="stat-rep">0</div></div>
-        <div class="stat"><div class="stat-title">🔥 Heat</div><div class="stat-value" id="stat-heat">0</div></div>
-        <div class="stat"><div class="stat-title">💵 Cash</div><div class="stat-value" id="stat-cash">$0</div></div>
+        <div class="stat">
+          <div class="stat-title">⭐ XP</div>
+          <div class="stat-value" id="stat-xp">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">🏆 REP</div>
+          <div class="stat-value" id="stat-rep">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">🔥 Heat</div>
+          <div class="stat-value" id="stat-heat">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">💵 Cash</div>
+          <div class="stat-value" id="stat-cash">$0</div>
+        </div>
       </div>
     </section>
 
@@ -51,7 +61,9 @@
     <!-- Trust -->
     <section class="section">
       <h3>🤝 Trust</h3>
-      <div class="trust-bar"><div id="trust-fill" class="trust-fill"></div></div>
+      <div class="trust-bar">
+        <div id="trust-fill" class="trust-fill"></div>
+      </div>
       <div id="trust-percent">0%</div>
     </section>
 
@@ -80,32 +92,33 @@
     </section>
   </div>
 
-  <!-- Core Scripts (relative paths) -->
-  <script src="../scripts/npc-data.js"   defer></script>
-  <script src="../scripts/flag-manager.js" defer></script>
-  <script src="../scripts/stats-engine.js" defer></script>
-  <script src="../scripts/log-manager.js"  defer></script>
-  <script src="../scripts/trust-bar.js"    defer></script>
+  <!-- Core Scripts via jsDelivr -->
+  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/npc-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/flag-manager.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/stats-engine.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/log-manager.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/trust-bar.js"></script>
 
   <!-- Initialization -->
-  <script defer>
-    window.addEventListener('load', function initMayaProfile() {
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 1️⃣ Pull Maya’s data
       const npc = window.NPCData?.get('maya') || {};
 
-      // Inject DOC
+      // 2️⃣ Inject DOC icon + name
       if (npc.drugOfChoice) {
         document.getElementById('doc-icon').textContent = npc.drugOfChoice.icon;
         document.getElementById('doc-name').textContent = npc.drugOfChoice.name;
       }
 
-      // Populate Stats
+      // 3️⃣ Populate Stats
       const stats = StatsEngine.get();
       document.getElementById('stat-xp').textContent   = stats.xp ?? 0;
       document.getElementById('stat-rep').textContent  = stats.rep ?? 0;
       document.getElementById('stat-heat').textContent = stats.heat ?? 0;
       document.getElementById('stat-cash').textContent = `$${stats.cash ?? 0}`;
 
-      // Render Recipes
+      // 4️⃣ Render Recipes
       const recipes = [
         { id:'starter_weed', name:'Starter Weed', icon:'🌿', requires:{cash:50}, gives:['starter_weed'], xpReward:5, unlockCondition:true },
         { id:'weed_oil',     name:'Weed Oil',      icon:'🛢️', requires:{starter_weed:2}, gives:['weed_oil'],    xpReward:10, unlockCondition: stats.rep >= 1 },
@@ -116,7 +129,7 @@
       recipeList.innerHTML = '';
       recipes.forEach(r => {
         const hasRes = Object.entries(r.requires).every(([k,v]) =>
-          k==='cash'
+          k === 'cash'
             ? stats.cash >= v
             : (JSON.parse(localStorage.getItem('playerInventory')||'{}')[k]||0) >= v
         );
@@ -134,8 +147,10 @@
         const r = recipes.find(x=>x.id===id);
         if (!r) return;
         Object.entries(r.requires).forEach(([k,v]) => {
-          if (k==='cash') stats.cash -= v;
-          else {
+          if (k === 'cash') {
+            stats.cash -= v;
+            StatsEngine.set(stats);
+          } else {
             const inv = JSON.parse(localStorage.getItem('playerInventory')||'{}');
             inv[k] = (inv[k]||0) - v;
             localStorage.setItem('playerInventory', JSON.stringify(inv));
@@ -147,10 +162,11 @@
         stats.xp += r.xpReward;
         StatsEngine.set(stats);
         LogManager.add(`🧪 Crafted ${r.name}. +${r.xpReward} XP`);
-        window.location.reload();
+        // Re-render
+        document.dispatchEvent(new Event('DOMContentLoaded'));
       };
 
-      // Render Missions
+      // 5️⃣ Render Missions
       const missions = [
         { id:'maya_prologue', name:'Prologue – Meet Maya', icon:'🌸', url:'/p/maya-prologue.html?m=1' }
       ];

@@ -4,11 +4,8 @@
   <meta charset="UTF-8">
   <title>🌸 Maya – Profile – Hustle Trap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Shared CSS via jsDelivr -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/styles/profile.css"
-  >
+  <!-- Shared CSS (relative path) -->
+  <link rel="stylesheet" href="../styles/profile.css">
 </head>
 <body>
   <div class="content">
@@ -92,53 +89,54 @@
     </section>
   </div>
 
-  <!-- Core Scripts via jsDelivr -->
-  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/npc-data.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/flag-manager.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/stats-engine.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/log-manager.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/SGGregory76/Hustle-Trap@main/scripts/trust-bar.js"></script>
+  <!-- Core Scripts (all relative so we know it’s your up-to-date code) -->
+  <script src="../scripts/npc-data.js"   defer></script>
+  <script src="../scripts/flag-manager.js" defer></script>
+  <script src="../scripts/stats-engine.js" defer></script>
+  <script src="../scripts/log-manager.js"  defer></script>
+  <script src="../scripts/trust-bar.js"    defer></script>
 
-  <!-- Initialization -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // 1️⃣ Pull Maya’s data
+  <!-- Initialization (runs after all scripts load) -->
+  <script defer>
+    window.addEventListener('load', function initMaya() {
+      // Pull Maya’s shared data
       const npc = window.NPCData?.get('maya') || {};
 
-      // 2️⃣ Inject DOC icon + name
+      // Inject DOC icon and name
       if (npc.drugOfChoice) {
         document.getElementById('doc-icon').textContent = npc.drugOfChoice.icon;
         document.getElementById('doc-name').textContent = npc.drugOfChoice.name;
       }
 
-      // 3️⃣ Populate Stats
+      // Populate stats
       const stats = StatsEngine.get();
       document.getElementById('stat-xp').textContent   = stats.xp ?? 0;
       document.getElementById('stat-rep').textContent  = stats.rep ?? 0;
       document.getElementById('stat-heat').textContent = stats.heat ?? 0;
       document.getElementById('stat-cash').textContent = `$${stats.cash ?? 0}`;
 
-      // 4️⃣ Render Recipes
+      // Render recipes
       const recipes = [
         { id:'starter_weed', name:'Starter Weed', icon:'🌿', requires:{cash:50}, gives:['starter_weed'], xpReward:5, unlockCondition:true },
         { id:'weed_oil',     name:'Weed Oil',      icon:'🛢️', requires:{starter_weed:2}, gives:['weed_oil'],    xpReward:10, unlockCondition: stats.rep >= 1 },
-        { id:'joint_pack',   name:'Joint Pack',    icon:'🚬', requires:{weed_oil:1,starter_weed:1}, gives:['joint_pack'], xpReward:15, unlockCondition: stats.xp >= 10 },
+        { id:'joint_pack',   name:'Joint Pack',    icon:'🚬', requires:{weed_oil:1,starter_weed:1}, gives:['joint_pack'], xpReward:15, unlockCondition: stats.xp  >= 10 },
         { id:'hash',         name:'Bubble Hash',   icon:'🔥', requires:{starter_weed:5}, gives:['hash'],       xpReward:25, unlockCondition: stats.rep >= 5 }
       ];
       const recipeList = document.getElementById('npcRecipes');
       recipeList.innerHTML = '';
       recipes.forEach(r => {
-        const hasRes = Object.entries(r.requires).every(([k,v]) =>
+        const hasResources = Object.entries(r.requires).every(([k,v]) =>
           k === 'cash'
             ? stats.cash >= v
             : (JSON.parse(localStorage.getItem('playerInventory')||'{}')[k]||0) >= v
         );
+        const unlocked = r.unlockCondition && hasResources;
         recipeList.innerHTML += `
           <li>
             <span>${r.icon} ${r.name}</span>
-            <button ${!(r.unlockCondition && hasRes)?'disabled':''}
+            <button ${!unlocked?'disabled':''}
                     onclick="unlockRecipe('${r.id}')">
-              ${r.unlockCondition && hasRes ? 'Unlock' : 'Locked'}
+              ${unlocked ? 'Unlock' : 'Locked'}
             </button>
           </li>`;
       });
@@ -146,8 +144,9 @@
       window.unlockRecipe = function(id) {
         const r = recipes.find(x=>x.id===id);
         if (!r) return;
-        Object.entries(r.requires).forEach(([k,v]) => {
-          if (k === 'cash') {
+        // Deduct costs
+        Object.entries(r.requires).forEach(([k,v])=>{
+          if (k==='cash') {
             stats.cash -= v;
             StatsEngine.set(stats);
           } else {
@@ -156,17 +155,19 @@
             localStorage.setItem('playerInventory', JSON.stringify(inv));
           }
         });
+        // Add outputs
         const inv = JSON.parse(localStorage.getItem('playerInventory')||'{}');
         r.gives.forEach(i=>inv[i]=(inv[i]||0)+1);
         localStorage.setItem('playerInventory', JSON.stringify(inv));
+        // Award XP & log
         stats.xp += r.xpReward;
         StatsEngine.set(stats);
         LogManager.add(`🧪 Crafted ${r.name}. +${r.xpReward} XP`);
-        // Re-render
-        document.dispatchEvent(new Event('DOMContentLoaded'));
+        // Refresh the page so buttons/stats update
+        window.location.reload();
       };
 
-      // 5️⃣ Render Missions
+      // Render missions
       const missions = [
         { id:'maya_prologue', name:'Prologue – Meet Maya', icon:'🌸', url:'/p/maya-prologue.html?m=1' }
       ];

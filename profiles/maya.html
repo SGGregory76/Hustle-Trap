@@ -37,13 +37,13 @@
     .profile-bio { background:#202020; border:1px solid #333; border-radius:10px; padding:14px; font-size:.875rem; margin-bottom:24px; }
 
     /* Actions */
-    .profile-actions { display:flex; gap:10px; margin:24px 0; }
-    .profile-actions a { flex:1; background:#666; color:#fff; text-align:center; padding:10px 0; border-radius:8px; font-size:.875rem; transition:background .3s; white-space:nowrap; }
+    .profile-actions { margin:24px 0; }
+    .profile-actions a { display:block; width:100%; background:#666; color:#fff; text-align:center; padding:10px 0; border-radius:8px; font-size:.875rem; transition:background .3s; white-space:nowrap; }
     .profile-actions a:hover { background:#777; }
 
     /* Trust Bar */
     .trust-bar { width:100%; background:#333; border-radius:6px; overflow:hidden; height:12px; margin-bottom:4px; }
-    .trust-fill { height:100%; background:#999; width:0%; }
+    .trust-fill { height:100%; background:#999; width:0%; transition:width .3s ease; }
     #trust-percent { text-align:right; font-size:.75rem; color:#999; margin-bottom:24px; }
 
     /* Lists */
@@ -63,8 +63,8 @@
         <div class="name">🌸 Maya</div>
         <div class="doc">
           <span class="doc-label">DOC:</span>
-          <span id="doc-icon" class="drug-icon">💊</span>
-          <span id="doc-name">Xanax</span>
+          <span id="doc-icon" class="drug-icon"></span>
+          <span id="doc-name"></span>
         </div>
       </div>
     </div>
@@ -122,74 +122,94 @@
     </section>
   </div>
 
-  <!-- Core Scripts -->
-  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/npc-data.js" defer></script>
-  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/flag-manager.js" defer></script>
-  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/stats-engine.js" defer></script>
-  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/log-manager.js" defer></script>
-  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/trust-bar.js" defer></script>
+  <!-- Core Scripts (relative paths) -->
+  <script src="../scripts/npc-data.js"   defer></script>
+  <script src="../scripts/flag-manager.js" defer></script>
+  <script src="../scripts/stats-engine.js" defer></script>
+  <script src="../scripts/log-manager.js"  defer></script>
+  <script src="../scripts/trust-bar.js"    defer></script>
 
-
-
-  
   <!-- Initialization -->
   <script defer>
-    function initMayaProfile() {
-      const dataSrc = window.NPCData || window.npcData || window.NPC_DATA || {};
-      const npc = typeof dataSrc.get === 'function' ? dataSrc.get('maya') || {} : dataSrc.maya || {};
+    window.addEventListener('load', function initMayaProfile() {
+      const npc = window.NPCData?.get('maya') || {};
 
-      // Inject Drug of Choice
+      // Inject DOC
       if (npc.drugOfChoice) {
         document.getElementById('doc-icon').textContent = npc.drugOfChoice.icon;
         document.getElementById('doc-name').textContent = npc.drugOfChoice.name;
       }
 
-      // Initialize Stats
-      if (window.StatsEngine) {
-        const stats = StatsEngine.get();
-        document.getElementById('stat-xp').textContent   = stats.xp ?? 0;
-        document.getElementById('stat-rep').textContent  = stats.rep ?? 0;
-        document.getElementById('stat-heat').textContent = stats.heat ?? 0;
-        document.getElementById('stat-cash').textContent = `$${stats.cash ?? 0}`;
-      }
+      // Populate Stats
+      const stats = StatsEngine.get();
+      document.getElementById('stat-xp').textContent   = stats.xp ?? 0;
+      document.getElementById('stat-rep').textContent  = stats.rep ?? 0;
+      document.getElementById('stat-heat').textContent = stats.heat ?? 0;
+      document.getElementById('stat-cash').textContent = `$${stats.cash ?? 0}`;
 
       // Render Recipes
       const recipes = [
         { id:'starter_weed', name:'Starter Weed', icon:'🌿', requires:{cash:50}, gives:['starter_weed'], xpReward:5, unlockCondition:true },
-        { id:'weed_oil', name:'Weed Oil', icon:'🛢️', requires:{starter_weed:2}, gives:['weed_oil'], xpReward:10, unlockCondition: (StatsEngine?.get().rep ?? 0) >= 1 },
-        { id:'joint_pack', name:'Joint Pack', icon:'🚬', requires:{weed_oil:1,starter_weed:1}, gives:['joint_pack'], xpReward:15, unlockCondition: (StatsEngine?.get().xp ?? 0) >= 10 },
-        { id:'hash', name:'Bubble Hash', icon:'🔥', requires:{starter_weed:5}, gives:['hash'], xpReward:25, unlockCondition: (StatsEngine?.get().rep ?? 0) >= 5 }
+        { id:'weed_oil',     name:'Weed Oil',      icon:'🛢️', requires:{starter_weed:2}, gives:['weed_oil'],    xpReward:10, unlockCondition: stats.rep >= 1 },
+        { id:'joint_pack',   name:'Joint Pack',    icon:'🚬', requires:{weed_oil:1,starter_weed:1}, gives:['joint_pack'], xpReward:15, unlockCondition: stats.xp >= 10 },
+        { id:'hash',         name:'Bubble Hash',   icon:'🔥', requires:{starter_weed:5}, gives:['hash'],       xpReward:25, unlockCondition: stats.rep >= 5 }
       ];
-      const recipeList = document.getElementById('npcRecipes'); recipeList.innerHTML = '';
+      const recipeList = document.getElementById('npcRecipes');
+      recipeList.innerHTML = '';
       recipes.forEach(r => {
         const hasRes = Object.entries(r.requires).every(([k,v]) =>
-          k==='cash' ? (StatsEngine?.get().cash ?? 0) >= v : ((JSON.parse(localStorage.getItem('playerInventory')||'{}')[k]||0) >= v)
+          k==='cash'
+            ? stats.cash >= v
+            : (JSON.parse(localStorage.getItem('playerInventory')||'{}')[k]||0) >= v
         );
-        recipeList.innerHTML += `<li><span>${r.icon} ${r.name}</span><button ${!(r.unlockCondition && hasRes)?'disabled':''} onclick=\"unlockRecipe('${r.id}')\">${(r.unlockCondition && hasRes)?'Unlock':'Locked'}</button></li>`;
+        recipeList.innerHTML += `
+          <li>
+            <span>${r.icon} ${r.name}</span>
+            <button ${!(r.unlockCondition && hasRes)?'disabled':''}
+                    onclick="unlockRecipe('${r.id}')">
+              ${r.unlockCondition && hasRes ? 'Unlock' : 'Locked'}
+            </button>
+          </li>`;
       });
 
-      window.unlockRecipe = id => {
-        const r = recipes.find(x=>x.id===id); if(!r) return;
-        Object.entries(r.requires).forEach(([k,v])=>{
-          if(k==='cash') StatsEngine.get().cash -= v;
-          else { const inv=JSON.parse(localStorage.getItem('playerInventory')||'{}'); inv[k]-=v; localStorage.setItem('playerInventory',JSON.stringify(inv)); }
+      window.unlockRecipe = function(id) {
+        const r = recipes.find(x=>x.id===id);
+        if (!r) return;
+        Object.entries(r.requires).forEach(([k,v]) => {
+          if (k==='cash') stats.cash -= v;
+          else {
+            const inv = JSON.parse(localStorage.getItem('playerInventory')||'{}');
+            inv[k] = (inv[k]||0) - v;
+            localStorage.setItem('playerInventory', JSON.stringify(inv));
+          }
         });
-        const inv=JSON.parse(localStorage.getItem('playerInventory')||'{}'); r.gives.forEach(i=>inv[i]=(inv[i]||0)+1);
-        localStorage.setItem('playerInventory',JSON.stringify(inv)); const st=StatsEngine.get(); st.xp+=r.xpReward; StatsEngine.set(st);
-        LogManager.add(`🧪 Crafted ${r.name}. +${r.xpReward} XP`); initMayaProfile();
+        const inv = JSON.parse(localStorage.getItem('playerInventory')||'{}');
+        r.gives.forEach(i=>inv[i]=(inv[i]||0)+1);
+        localStorage.setItem('playerInventory', JSON.stringify(inv));
+        stats.xp += r.xpReward;
+        StatsEngine.set(stats);
+        LogManager.add(`🧪 Crafted ${r.name}. +${r.xpReward} XP`);
+        window.location.reload();
       };
 
       // Render Missions
       const missions = [
-        { id:'maya_intro', name:'Intro – First Contact', icon:'🌸', url:'/p/maya-intro.html?m=1' }
+        { id:'maya_prologue', name:'Prologue – Meet Maya', icon:'🌸', url:'/p/maya-prologue.html?m=1' }
       ];
-      const missionList = document.getElementById('npcMissions'); missionList.innerHTML = '';
+      const missionList = document.getElementById('npcMissions');
+      missionList.innerHTML = '';
       missions.forEach(m => {
-        const done = window.FlagManager?.get(m.id);
-        missionList.innerHTML += `<li><span>${m.icon} ${m.name}</span><button ${done?'disabled':''} onclick=\"location.href='${m.url}'\">${done?'✓ Completed':'Start'}</button></li>`;
+        const done = FlagManager.get(m.id);
+        missionList.innerHTML += `
+          <li>
+            <span>${m.icon} ${m.name}</span>
+            <button ${done?'disabled':''}
+                    onclick="location.href='${m.url}'">
+              ${done ? '✓ Completed' : 'Start'}
+            </button>
+          </li>`;
       });
-    }
-    window.addEventListener('load', initMayaProfile);
+    });
   </script>
 </body>
 </html>

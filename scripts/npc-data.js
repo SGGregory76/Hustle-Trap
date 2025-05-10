@@ -9,7 +9,7 @@
     },
     maya: {
       displayName: 'Maya',
-      icon: '🌸',
+      icon: '💊',
       avatarUrl: 'https://via.placeholder.com/48',
       drugOfChoice: { icon: '💊', name: 'Xanax' }
     },
@@ -17,7 +17,7 @@
       displayName: 'Rico',
       icon: '💼',
       avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '💊', name: 'MDMA' }
+      drugOfChoice: { icon: '🌿', name: 'Marijuana'}
     },
     skye: {
       displayName: 'Skye',
@@ -27,15 +27,15 @@
     },
     jax: {
       displayName: 'Jax',
-      icon: '🔫',
+      icon: '🥊',
       avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '💊', name: 'Adderall' }
+      drugOfChoice: { icon: '🍄', name: 'Shrooms' }
     },
     diesel: {
       displayName: 'Diesel',
-      icon: '🚚',
+      icon: '⛽️',
       avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '❤️', name: 'Oxytocin' }
+      drugOfChoice: { icon: '🪨', name: 'Meth' }
     }
   };
 

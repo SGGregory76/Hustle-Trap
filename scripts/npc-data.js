@@ -1,35 +1,53 @@
 // npc-data.js
 // Defines NPC traits and global game systems (trading, pricing, relationships)
 
-const NPCData = {
-  Blaze: {
-    tag: 'BlazeTrap',
-    doc: 'Weed',
-    traits: {
-      trust: 0,           // 0-100
-      riskAppetite: 'medium', // 'low' | 'medium' | 'high'
-      negotiation: 0.1,   // % discount on trades
-      craftingSkill: 1.2, // XP multiplier
-      availability: 'always', // 'day' | 'night' | 'cooldown'
-      specialty: ['starter_weed', 'weed_oil']
-    },
-    storageCapacity: 20, // max items
+// scripts/npc-data.js
+
+export const NPCData = {
+  blaze: {
+    displayName: 'Blaze',
+    icon: '🔥',
+    avatarUrl: 'https://via.placeholder.com/48',  // or your real URL
+    drugOfChoice: { icon: '❄️', name: 'Cocaine' },
   },
-  Maya: {
-    tag: 'MayaCooker',
-    doc: 'LSD',
-    traits: {
-      trust: 0,
-      riskAppetite: 'high',
-      negotiation: 0.05,
-      craftingSkill: 1.5,
-      availability: 'day',
-      specialty: ['acid_tabs', 'psychedelic_blend']
-    },
-    storageCapacity: 15,
+  maya: {
+    displayName: 'Maya',
+    icon: '🌸',
+    avatarUrl: 'https://…',
+    drugOfChoice: { icon: '💊', name: 'Xanax' },
   },
-  // Additional NPCs: Rico, Skye, Diesel, Jax...
+  rico: {
+    displayName: 'Rico',
+    icon: '💼',
+    avatarUrl: 'https://…',
+    drugOfChoice: { icon: '🍄', name: 'MDMA' },
+  },
+  skye: {
+    displayName: 'Skye',
+    icon: '🎤',
+    avatarUrl: 'https://…',
+    drugOfChoice: { icon: '🍄', name: 'LSD' },
+  },
+  jax: {
+    displayName: 'Jax',
+    icon: '🔫',
+    avatarUrl: 'https://…',
+    drugOfChoice: { icon: '💊', name: 'Adderall' },
+  },
+  diesel: {
+    displayName: 'Diesel',
+    icon: '🚚',
+    avatarUrl: 'https://…',
+    drugOfChoice: { icon: '❤️', name: 'Oxytocin' },
+  },
 };
+
+// If you need a getter API:
+window.NPCData = {
+  get: id => NPCData[id],
+  // optionally: all: () => NPCData
+};
+
 
 // Global dynamic pricing model
 globalThis.PriceEngine = {

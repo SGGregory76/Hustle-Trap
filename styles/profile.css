@@ -183,3 +183,19 @@ button {
   opacity: 0.6;
   cursor: not-allowed;
 }
+/* ========== iframe-specific tweaks ========== */
+.in-iframe .content {
+  padding: 20px 10px;        /* less vertical padding */
+  max-width: 100%;           /* full width */
+}
+.in-iframe h2 {
+  margin-bottom: 16px;       /* tighter spacing */
+  font-size: 1.1rem;         /* slightly smaller */
+}
+.in-iframe .missions-list {
+  padding: 0 8px;            /* narrower side padding */
+}
+.in-iframe .missions-list li {
+  padding: 8px;              /* smaller list-item padding */
+  font-size: .9rem;          /* more compact text */
+}

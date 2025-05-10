@@ -35,7 +35,7 @@
       displayName: 'Diesel',
       icon: '⛽️',
       avatarUrl: 'https://via.placeholder.com/48',
-      drugOfChoice: { icon: '🪨', name: 'Meth' }
+      drugOfChoice: { icon: '🪨', name: 'Crack' }
     }
   };
 

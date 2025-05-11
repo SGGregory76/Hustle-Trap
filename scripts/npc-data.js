@@ -1,14 +1,4 @@
 // scripts/npc-data.js
-<script>
-  (function(){
-    const ts     = Date.now();
-    const loader = document.createElement('script');
-    loader.src   = `https://sggregory76.github.io/Hustle-Trap/scripts/npc-data.js?cb=${ts}`;
-    loader.defer = true;
-    document.head.appendChild(loader);
-  })();
-</script>
-
 ;(function(){
   const data = {
     blaze: {

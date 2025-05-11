@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>💼 Rico – Profile – Hustle Trap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Shared CSS -->
+  <link
+    rel="stylesheet"
+    href="https://sggregory76.github.io/Hustle-Trap/styles/profile.css"
+  >
+
+  <!-- Optional page-specific overrides -->
+  <style>
+    .profile-header { display:flex; align-items:center; gap:12px; margin-bottom:24px; }
+    .avatar { width:48px; height:48px; border-radius:50%; background:#333 center/cover no-repeat; }
+    .profile-header-text { display:flex; flex-direction:column; }
+    .name { font-size:1.375rem; color:#999; font-weight:700; }
+    .doc { display:flex; align-items:center; gap:6px; font-size:.875rem; color:#aaa; margin-top:4px; }
+    .doc-label { font-weight:700; }
+
+    .section { margin-bottom:24px; }
+    .section h3 { font-size:1rem; color:#999; margin-bottom:8px; }
+
+    .stats-card { display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#181818; border:1px solid #333; border-radius:12px; padding:12px; }
+    .stat { text-align:center; }
+    .stat-title { font-size:.75rem; color:#999; }
+    .stat-value { font-size:1rem; color:#fff; font-weight:700; }
+
+    .profile-bio { background:#202020; border:1px solid #333; border-radius:10px; padding:14px; font-size:.875rem; margin-bottom:24px; }
+
+    .profile-actions { margin:24px 0; }
+    .profile-actions a { display:block; width:100%; background:#666; color:#fff; text-align:center; padding:10px 0; border-radius:8px; font-size:.875rem; transition:background .3s; white-space:nowrap; }
+    .profile-actions a:hover { background:#777; }
+
+    .trust-bar { width:100%; background:#333; border-radius:6px; overflow:hidden; height:12px; margin-bottom:4px; }
+    .trust-fill { height:100%; background:#999; width:0%; transition:width .3s ease; }
+    #trust-percent { text-align:right; font-size:.75rem; color:#999; margin-bottom:24px; }
+
+    .item-list { list-style:none; padding:0; margin:0; }
+    .item-list li { display:flex; justify-content:space-between; align-items:center; background:#181818; border:1px solid #333; border-radius:8px; padding:10px 12px; margin-bottom:8px; font-size:.875rem; }
+    .item-list button { background:#999; color:#0a0a0a; border:none; border-radius:6px; padding:8px 12px; cursor:pointer; transition:background .3s; white-space:nowrap; }
+    .item-list button:hover:not(:disabled) { background:#bbb; }
+    .item-list button:disabled { opacity:0.6; cursor:not-allowed; }
+  </style>
+
+  <!-- 1) Dynamic loader: always fetch freshest npc-data.js -->
+  <script>
+    (function(){
+      const ts     = Date.now();
+      const loader = document.createElement('script');
+      loader.src   = `https://sggregory76.github.io/Hustle-Trap/scripts/npc-data.js?cb=${ts}`;
+      loader.defer = true;
+      document.head.appendChild(loader);
+    })();
+  </script>
+
+  <!-- 2) Core engine scripts -->
+  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/flag-manager.js" defer></script>
+  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/stats-engine.js" defer></script>
+  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/log-manager.js" defer></script>
+  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/trust-bar.js" defer></script>
+
+  <!-- 3) Initialization for Rico -->
+  <script defer>
+    window.addEventListener('load', function initRicoProfile() {
+      const npc = window.NPCData?.get('rico') || {};
+
+      // Header icon + name
+      const nameEl = document.querySelector('.name');
+      if (npc.icon && npc.displayName) {
+        nameEl.textContent = `${npc.icon} ${npc.displayName}`;
+      }
+
+      // Avatar
+      const avatarEl = document.querySelector('.avatar');
+      if (npc.avatarUrl) {
+        avatarEl.style.backgroundImage = `url('${npc.avatarUrl}')`;
+      }
+
+      // DOC
+      if (npc.drugOfChoice) {
+        document.getElementById('doc-icon').textContent = npc.drugOfChoice.icon;
+        document.getElementById('doc-name').textContent = npc.drugOfChoice.name;
+      }
+
+      // Stats
+      const stats = StatsEngine.get();
+      document.getElementById('stat-xp').textContent   = stats.xp   ?? 0;
+      document.getElementById('stat-rep').textContent  = stats.rep  ?? 0;
+      document.getElementById('stat-heat').textContent = stats.heat ?? 0;
+      document.getElementById('stat-cash').textContent = `$${stats.cash ?? 0}`;
+
+      // Recipes
+      const recipes = [
+        { id:'starter_weed', name:'Starter Weed', icon:'🌿', requires:{cash:50}, gives:['starter_weed'], xpReward:5,  unlockCondition:true },
+        { id:'weed_oil',     name:'Weed Oil',      icon:'🛢️', requires:{starter_weed:2}, gives:['weed_oil'],    xpReward:10, unlockCondition: stats.rep >= 1 },
+        { id:'joint_pack',   name:'Joint Pack',    icon:'🚬', requires:{weed_oil:1,starter_weed:1}, gives:['joint_pack'], xpReward:15, unlockCondition: stats.xp  >= 10 },
+        { id:'hash',         name:'Bubble Hash',   icon:'🔥', requires:{starter_weed:5}, gives:['hash'],       xpReward:25, unlockCondition: stats.rep >= 5 }
+      ];
+      const recipeList = document.getElementById('npcRecipes');
+      recipeList.innerHTML = '';
+      recipes.forEach(r => {
+        const canCraft = Object.entries(r.requires).every(([k,v]) =>
+          k==='cash' ? stats.cash >= v : (JSON.parse(localStorage.getItem('playerInventory')||'{}')[k]||0) >= v
+        );
+        recipeList.innerHTML += `
+          <li>
+            <span>${r.icon} ${r.name}</span>
+            <button ${!canCraft?'disabled':''} onclick="unlockRecipe('${r.id}')">
+              ${canCraft ? 'Unlock' : 'Locked'}
+            </button>
+          </li>`;
+      });
+
+      window.unlockRecipe = id => {
+        const r = recipes.find(x=>x.id===id);
+        if (!r) return;
+        Object.entries(r.requires).forEach(([k,v])=>{
+          if (k==='cash') { stats.cash -= v; StatsEngine.set(stats); }
+          else {
+            const inv = JSON.parse(localStorage.getItem('playerInventory')||'{}');
+            inv[k] = (inv[k]||0) - v;
+            localStorage.setItem('playerInventory', JSON.stringify(inv));
+          }
+        });
+        const inv = JSON.parse(localStorage.getItem('playerInventory')||'{}');
+        r.gives.forEach(i=>inv[i] = (inv[i]||0) + 1);
+        localStorage.setItem('playerInventory', JSON.stringify(inv));
+        stats.xp += r.xpReward; StatsEngine.set(stats);
+        LogManager.add(`🧪 Crafted ${r.name}. +${r.xpReward} XP`);
+        window.location.reload();
+      };
+
+      // Missions
+      const missions = [
+        { id:'rico_prologue', name:'Prologue – Meet Rico', icon:npc.icon, url:npc.profileUrl }
+      ];
+      const missionList = document.getElementById('npcMissions');
+      missionList.innerHTML = '';
+      missions.forEach(m => {
+        const done = FlagManager.get(m.id);
+        missionList.innerHTML += `
+          <li>
+            <span>${m.icon} ${m.name}</span>
+            <button ${done?'disabled':''} onclick="location.href='${m.url}'">
+              ${done ? '✓ Completed' : 'Start'}
+            </button>
+          </li>`;
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="content">
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="avatar"></div>
+      <div class="profile-header-text">
+        <div class="name">💼 Rico</div>
+        <div class="doc">
+          <span class="doc-label">DOC:</span>
+          <span id="doc-icon" class="drug-icon"></span>
+          <span id="doc-name"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Your Stats -->
+    <section class="section">
+      <h3>🎯 Your Stats</h3>
+      <div class="stats-card">
+        <div class="stat"><div class="stat-title">⭐ XP</div><div class="stat-value" id="stat-xp">0</div></div>
+        <div class="stat"><div class="stat-title">🏆 REP</div><div class="stat-value" id="stat-rep">0</div></div>
+        <div class="stat"><div class="stat-title">🔥 Heat</div><div class="stat-value" id="stat-heat">0</div></div>
+        <div class="stat"><div class="stat-title">💵 Cash</div><div class="stat-value" id="stat-cash">$0</div></div>
+      </div>
+    </section>
+
+    <!-- Bio -->
+    <section class="section profile-bio">
+      Rico moves product faster than anyone in the city—treat him right, and he’ll hook you up; cross him, and you’ll vanish.  
+    </section>
+
+    <!-- Actions -->
+    <div class="profile-actions">
+      <a href="/p/cash-apps.html?to=RicoTrap&action=send&m=1">💵 Pay Rico</a>
+    </div>
+
+    <!-- Trust -->
+    <section class="section">
+      <h3>🤝 Trust</h3>
+      <div class="trust-bar"><div id="trust-fill" class="trust-fill"></div></div>
+      <div id="trust-percent">0%</div>
+    </section>
+
+    <!-- Recipes -->
+    <section class="section">
+      <h3>⚗️ Recipes</h3>
+      <ul class="item-list" id="npcRecipes"></ul>
+    </section>
+
+    <!-- Missions -->
+    <section class="section">
+      <h3>📋 Missions</h3>
+      <ul class="item-list" id="npcMissions"></ul>
+    </section>
+
+    <!-- NPC Inventory -->
+    <section class="section">
+      <h3>📦 Rico's Inventory</h3>
+      <ul class="item-list" id="npcInventory"></ul>
+    </section>
+
+    <!-- Player Inventory -->
+    <section class="section">
+      <h3>🎒 Your Inventory</h3>
+      <ul class="item-list" id="playerInventory"></ul>
+    </section>
+  </div>
+</body>
+</html>

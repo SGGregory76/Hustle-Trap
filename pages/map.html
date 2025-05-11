@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🗺️ World Map – Hustle Trap</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+  <!-- Your shared CSS for sizing -->
+  <link
+    rel="stylesheet"
+    href="https://sggregory76.github.io/Hustle-Trap/styles/profile.css"
+  />
+
+  <style>
+    body, html { height:100%; margin:0; background:#0a0a0a; }
+    #map { height:100%; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- NPC data for markers -->
+  <script src="https://sggregory76.github.io/Hustle-Trap/scripts/npc-data.js?cb=1" defer></script>
+
+  <script>
+    window.addEventListener('load', () => {
+      // 1) Initialize map centered on your world
+      const map = L.map('map', {
+        minZoom: 0,
+        maxZoom: 4,
+        center: [0, 0],
+        zoom: 2,
+        crs: L.CRS.Simple       // use a simple coordinate system
+      });
+
+      // 2) Dimensions & bounds of the world image
+      //    Suppose your original was 2048×2048 px:
+      const w = 2048, h = 2048;
+      const southWest = map.unproject([0, h], map.getMaxZoom());
+      const northEast = map.unproject([w, 0], map.getMaxZoom());
+      const bounds = new L.LatLngBounds(southWest, northEast);
+      map.setMaxBounds(bounds);
+
+      // 3) Load your tiles
+      L.tileLayer(
+        'https://sggregory76.github.io/Hustle-Trap/tiles/{z}/{x}/{y}.png',
+        {
+          noWrap: true,
+          bounds: bounds,
+          attribution: '© Hustle Trap'
+        }
+      ).addTo(map);
+
+      // 4) Overlay NPC markers from npc-data.js
+      const npcIds = ['blaze','maya','rico','skye','jax','diesel'];
+      npcIds.forEach(id => {
+        const npc = window.NPCData.get(id) || {};
+        if (!npc.coords) return;  // skip if no coord defined
+        // coords should be [pxX,pxY] from top-left of image:
+        const latlng = map.unproject([npc.coords[0], npc.coords[1]], map.getMaxZoom());
+        const marker = L.marker(latlng, {
+          icon: L.divIcon({
+            html: `<span style="font-size:1.5rem">${npc.icon}</span>`,
+            className: '',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+          })
+        }).addTo(map);
+        marker.on('click', () => {
+          // load the profile in your OS shell iframe:
+          parent.document.getElementById('contentFrame').src = `profiles/${id}.html`;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

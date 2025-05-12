@@ -1,14 +1,17 @@
-const LogManager = {
-  _key: 'gameLog',
-  get() {
-    return JSON.parse(localStorage.getItem(this._key) || '[]');
+// scripts/log-manager.js
+window.LogManager = {
+  _prefix: 'ht_log_',
+  log(ctx, key, val) {
+    const entry = { context:ctx, key, val, timestamp: Date.now(), message:`[${ctx}] ${key}: ${val}` };
+    // store in array
+    const arr = JSON.parse(localStorage.getItem(this._prefix+'all')) || [];
+    arr.unshift(entry);
+    localStorage.setItem(this._prefix+'all', JSON.stringify(arr));
   },
-  add(entry) {
-    const log = this.get();
-    log.push({ time: new Date().toLocaleString(), text: entry });
-    localStorage.setItem(this._key, JSON.stringify(log));
+  getAll() {
+    return JSON.parse(localStorage.getItem(this._prefix+'all')) || [];
   },
-  clear() {
-    localStorage.removeItem(this._key);
+  reset() {
+    localStorage.removeItem(this._prefix+'all');
   }
 };

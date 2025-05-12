@@ -1,35 +1,26 @@
-const StatsEngine = {
-  _key: 'playerStats',
-  init() {
-    const base = { xp: 0, rep: 0, rp: 0, heat: 0, cash: 0 };
-    const stats = Object.assign(base, JSON.parse(localStorage.getItem(this._key) || '{}'));
-    localStorage.setItem(this._key, JSON.stringify(stats));
-    return stats;
-  },
-  get() {
-    return JSON.parse(localStorage.getItem(this._key) || '{}');
-  },
-  set(stats) {
-    localStorage.setItem(this._key, JSON.stringify(stats));
-  },
-  gain(updates) {
-    const stats = this.get();
-    for (let key in updates) {
-      stats[key] = (stats[key] || 0) + updates[key];
-    }
-    this.set(stats);
-  },
-  reset() {
-    localStorage.removeItem(this._key);
-  }
-};
+// scripts/stats-engine.js
 window.StatsEngine = {
   _key: s => `ht_stat_${s}`,
-  add: function(stat, amount) {
+  add(stat, amount) {
     const curr = JSON.parse(localStorage.getItem(this._key(stat))) || 0;
     localStorage.setItem(this._key(stat), JSON.stringify(curr + amount));
   },
-  get: function(stat) {
+  get(stat) {
     return JSON.parse(localStorage.getItem(this._key(stat))) || 0;
+  },
+  getAll() {
+    const out = {};
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('ht_stat_')) {
+        const key = k.replace('ht_stat_', '');
+        out[key] = JSON.parse(localStorage.getItem(k)) || 0;
+      }
+    });
+    return out;
+  },
+  reset() {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('ht_stat_')) localStorage.removeItem(k);
+    });
   }
 };

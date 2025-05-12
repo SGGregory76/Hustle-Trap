@@ -20,3 +20,12 @@ const FlagManager = {
     return this.load();
   }
 };
+window.FlagManager = {
+  _key: k => `ht_flag_${k}`,
+  get: function(flag) {
+    return JSON.parse(localStorage.getItem(this._key(flag))) || false;
+  },
+  set: function(flag, value) {
+    localStorage.setItem(this._key(flag), JSON.stringify(Boolean(value)));
+  }
+};

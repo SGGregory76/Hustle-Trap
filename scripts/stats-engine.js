@@ -23,3 +23,13 @@ const StatsEngine = {
     localStorage.removeItem(this._key);
   }
 };
+window.StatsEngine = {
+  _key: s => `ht_stat_${s}`,
+  add: function(stat, amount) {
+    const curr = JSON.parse(localStorage.getItem(this._key(stat))) || 0;
+    localStorage.setItem(this._key(stat), JSON.stringify(curr + amount));
+  },
+  get: function(stat) {
+    return JSON.parse(localStorage.getItem(this._key(stat))) || 0;
+  }
+};

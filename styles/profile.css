@@ -11,6 +11,8 @@
 *, *::before, *::after {
   box-sizing: border-box;
 }
+/* profile.css */
+
 html,
 body {
   margin: 0;
